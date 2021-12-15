@@ -26,7 +26,7 @@ uniform float lumamount <
 
 uniform float grainsize <
 	ui_type = "slider";
-	ui_min = 1.5; ui_max = 2.5;
+	ui_min = 1.25; ui_max = 2.5;
 	ui_label = "Grain Particle Size";
 > = 1.6;
 
@@ -115,21 +115,22 @@ float2 coordRot(in float2 tc, in float angle)
 
 float4 main(float4 vpos : SV_Position, float2 texCoord : TexCoord) : SV_Target
 {
+	float time = 1.0f; time = timer % 1000.0f;
 	float3 rotOffset = float3(1.425, 3.892, 5.835); // Rotation offset values	
-	float2 rotCoordsR = coordRot(texCoord, timer + rotOffset.x);
-	float3 noise = pnoise3D(float3(rotCoordsR * BUFFER_SCREEN_SIZE / grainsize, 0.0)).xxx;
+	float2 rotCoordsR = coordRot(texCoord, time + rotOffset.x);
+	float3 noise = pnoise3D(float3(rotCoordsR * BUFFER_SCREEN_SIZE / grainsize, 0.0f)).xxx;
 
 	if (coloramount > 0)
 	{
-		float2 rotCoordsG = coordRot(texCoord, timer + rotOffset.y);
-		float2 rotCoordsB = coordRot(texCoord, timer + rotOffset.z);
-		noise.g = lerp(noise.r, pnoise3D(float3(rotCoordsG * BUFFER_SCREEN_SIZE / grainsize, 1.0)), coloramount);
-		noise.b = lerp(noise.r, pnoise3D(float3(rotCoordsB * BUFFER_SCREEN_SIZE / grainsize, 2.0)), coloramount);
+		float2 rotCoordsG = coordRot(texCoord, time + rotOffset.y);
+		float2 rotCoordsB = coordRot(texCoord, time + rotOffset.z);
+		noise.g = lerp(noise.r, pnoise3D(float3(rotCoordsG * BUFFER_SCREEN_SIZE / grainsize, 1.0f)), coloramount);
+		noise.b = lerp(noise.r, pnoise3D(float3(rotCoordsB * BUFFER_SCREEN_SIZE / grainsize, 2.0f)), coloramount);
 	}
 
 	float3 col = tex2D(ReShade::BackBuffer, texCoord).rgb;
 
-	const float3 lumcoeff = float3(0.299, 0.587, 0.114);
+	const float3 lumcoeff = float3(0.212656, 0.715158, 0.072186);
 	float luminance = lerp(0.0, dot(col, lumcoeff), lumamount);
 	float lum = smoothstep(0.2, 0.0, luminance);
 	lum += luminance;
