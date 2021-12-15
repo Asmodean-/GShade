@@ -128,6 +128,9 @@ uniform float BLOOM_TONEMAP_COMPRESSION <
 /*=============================================================================
 	Textures, Samplers, Globals
 =============================================================================*/
+#if GSHADE_DITHER
+    #include "TriDither.fxh"
+#endif
 
 #define RESHADE_QUINT_COMMON_VERSION_REQUIRE 200
 #include "qUINT_common.fxh"
@@ -356,6 +359,10 @@ void PS_Combine(in float4 pos : SV_Position, in float2 uv : TEXCOORD, out float4
 	color.rgb = pow(max(0,color.rgb), BLOOM_TONEMAP_COMPRESSION);
 	color.rgb = color.rgb / (1.0 + color.rgb);
 	color.rgb = pow(color.rgb, 1.0 / BLOOM_TONEMAP_COMPRESSION);
+    
+#if GSHADE_DITHER
+    color.rgb = color.rgb + TriDither(color.rgb, uv, BUFFER_COLOR_BIT_DEPTH);
+#endif
 }
 
 /*=============================================================================
